@@ -599,21 +599,6 @@
     </style>
 </head>
 <body>
-    <script>
-  // se siamo incorporati (cioè dentro un iframe, come in Google Sites)
-  // aggiungo una classe al <html>
-  (function () {
-    try {
-      if (window.self !== window.top) {
-        document.documentElement.classList.add('inside-embed');
-      }
-    } catch (e) {
-      // in caso di cross-origin, lo consideriamo comunque embedded
-      document.documentElement.classList.add('inside-embed');
-    }
-  })();
-</script>
-
     <div class="container">
 
 
@@ -905,95 +890,5 @@
 
         document.querySelectorAll('.milestone').forEach(m => observer.observe(m));
     </script>
-    <style>
-        /* =========================
-   MODALITÀ "GOOGLE SITES"
-   quando siamo dentro un iframe e lo schermo è stretto
-   ========================= */
-html.inside-embed body {
-  overflow-x: hidden;  /* niente scroll orizzontale brutto */
-}
-
-/* regola chiave: non far diventare altissima la timeline */
-html.inside-embed .timeline-container {
-  padding: 0.8rem 0 0.5rem;
-  min-height: auto;
-}
-
-html.inside-embed .timeline-line {
-  /* possiamo anche toglierla, ma la lascio sottile */
-  top: 65px;
-  left: 0;
-  right: 0;
-  height: 2px;
-  background: rgba(0,0,0,0.05);
-}
-
-/* QUI il trucco:
-   invece di 5 card in verticale → le metto in riga orizzontale scrollabile
-   altezza bassa → l'iframe non “taglia”
-*/
-@media (max-width: 999px) {
-  html.inside-embed .timeline {
-    display: flex;
-    flex-wrap: nowrap;
-    gap: 1rem;
-    overflow-x: auto;
-    padding: 1rem 0 1rem 0.2rem;
-  }
-
-  /* ogni milestone diventa una card compatta */
-  html.inside-embed .milestone {
-    flex: 0 0 82%;
-    max-width: 82%;
-    padding-left: 0;
-    position: relative;
-  }
-
-  /* cerchio sopra la card, non a lato */
-  html.inside-embed .milestone-circle {
-    position: absolute;
-    top: -32px;
-    left: 1rem;
-    width: 58px;
-    height: 58px;
-    box-shadow: 0 8px 20px rgba(0,0,0,.12);
-  }
-
-  /* card più compatta */
-  html.inside-embed .milestone-content {
-    width: 100% !important;
-    margin-top: 2.5rem !important;
-    margin-bottom: 0 !important;
-    padding: .95rem .9rem 1rem;
-  }
-
-  /* taglio i testi lunghi per non alzare l’altezza */
-  html.inside-embed .milestone-details {
-    max-height: 3.2rem;
-    overflow: hidden;
-  }
-
-  html.inside-embed .milestone-description {
-    margin-bottom: .35rem;
-  }
-
-  /* connettori desktop: via */
-  html.inside-embed .milestone-connector {
-    display: none;
-  }
-
-  /* nav puntini: più piccola */
-  html.inside-embed .timeline-nav {
-    gap: .45rem;
-  }
-}
-
-/* opzionale: modale più basso dentro Sites */
-html.inside-embed .modal-content {
-  max-height: 80vh;
-}
-
-    </style>
 </body>
 </html>
