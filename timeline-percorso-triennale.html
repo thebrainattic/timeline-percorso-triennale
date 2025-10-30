@@ -466,136 +466,44 @@
             background: #95A5A6;
         }
 
-        /* ============= TUO MEDIA ORIGINALE ============= */
-        @media (max-width: 1200px) {
-            .container {
-                min-width: 1000px;
-            }
-            .milestone-content {
-                width: 160px;
-                padding: 1rem;
-            }
-            .milestone-circle {
-                width: 75px;
-                height: 75px;
-            }
-            .milestone-circle svg {
-                width: 38px;
-                height: 38px;
-            }
-
-             .milestone:nth-child(odd) .milestone-connector {
-                top: 75px;
-            }
-
-            .milestone:nth-child(even) .milestone-connector {
-                bottom: 75px;
-            }
-        }
-
-        /* ==========================================================
-           *** NUOVA PARTE ***
-           MOBILE/TABLET < 1000px
-           Qui NON tocchiamo lo stile desktop, lo adattiamo soltanto
-        ========================================================== */
-       /* =============== MOBILE / TABLET =============== */
+       /* ======= MOBILE: STESSO LAYOUT DEL DESKTOP, MA CON SCROLL ORIZZONTALE ======= */
 @media (max-width: 999px) {
-
-  body {
-    overflow-x: hidden;
-    padding: 0.5rem;
+  /* il body può scorrere in orizzontale */
+  html, body {
+    overflow-x: auto;
   }
 
+  /* il contenitore resta largo come il desktop */
   .container {
-    min-width: 0;           /* elimina i 1100px/1000px imposti sopra */
-    width: 100%;
-    padding: 1rem 0.7rem 1.5rem;
+    min-width: 1100px;    /* stessa larghezza che hai su desktop */
+    width: 1100px;        /* forziamo proprio così Sites non la stringe */
   }
 
-  /* contenitore */
-  .timeline-container {
-    padding: 1.2rem 0 0;
-    min-height: auto;
-  }
-
-  /* linea diventa verticale e si mette a sinistra */
-  .timeline-line {
-    top: 0;
-    bottom: 0;
-    left: 28px;
-    right: auto;
-    width: 3px;
-    height: 100%;
-  }
-
-  .timeline-line-progress {
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(
-      to bottom,
-      #16A085,
-      #FF6B9D,
-      #3498DB,
-      #9B59B6,
-      #27AE60
-    );
-  }
-
-  /* lista in colonna */
+  /* la timeline resta in riga */
   .timeline {
     display: flex;
-    flex-direction: column;
-    gap: 1.6rem;
-    align-items: stretch;
+    flex-wrap: nowrap;
   }
 
-  /* ogni milestone diventa blocco */
+  /* la linea orizzontale resta quella centrale */
+  .timeline-line {
+    top: 50%;
+    left: 3%;
+    right: 3%;
+    height: 4px;
+  }
+
+  /* niente cambi di ordine sulle card: usiamo quelli desktop */
   .milestone {
-    position: relative;
-    display: block;
-    padding-left: 4.2rem;   /* spazio per il cerchio a sinistra */
-    opacity: 1;
-    transform: none;
+    flex: 0 0 auto;   /* così non si schiaccia */
   }
 
-  /* card occupa tutto */
+  /* se avevi messo qualcosa tipo width:100% nelle versioni precedenti, lo annulliamo */
   .milestone-content {
-    width: 100% !important;
-    margin: 0 !important;   /* niente margini su/giù alternati */
-  }
-
-  /* cerchio piccolo a sinistra, non più a destra */
-  .milestone-circle {
-    position: absolute;
-    left: 3px;
-    top: 1.1rem;
-    width: 52px;
-    height: 52px;
-    box-shadow: 0 6px 16px rgba(0,0,0,.12);
-    transform: none;
-  }
-
-  /* il connettore verticale della versione desktop lo togliamo */
-  .milestone-connector {
-    display: none;
-  }
-
-  /* niente alternanza su mobile: tutte uguali */
-  .milestone:nth-child(odd) .milestone-content,
-  .milestone:nth-child(even) .milestone-content {
-    order: 0;
-  }
-
-  /* nav un po’ più stretta */
-  .timeline-nav {
-    gap: .5rem;
-  }
-
-  /* modale un po’ più stretto */
-  .modal-content {
-    max-width: 94%;
+    width: 180px;     /* come il desktop */
   }
 }
+
     </style>
 </head>
 <body>
