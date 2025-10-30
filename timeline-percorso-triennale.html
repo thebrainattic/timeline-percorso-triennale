@@ -1,0 +1,894 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Percorso Triennale - Timeline</title>
+    <style>
+        /* ==================== BASE (DESKTOP) = TUO ORIGINALE ==================== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 1rem;
+            overflow-x: auto; /* desktop: serve per scorrere se è larghissima */
+        }
+
+        .container {
+            max-width: 100%;
+            min-width: 1100px;  /* ← questo lo disattivo sotto i 1000px */
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 2rem 1.5rem;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            position: relative;
+        }
+
+        /* Navigation Dots */
+        .timeline-nav {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .nav-dot {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #E0E0E0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            opacity: .6;
+        }
+
+        .nav-dot:hover {
+            transform: scale(1.3);
+        }
+
+        .nav-dot.active {
+            transform: scale(1.5);
+            opacity: 1;
+        }
+
+        .nav-dot:nth-child(1) { background: #16A085; }
+        .nav-dot:nth-child(2) { background: #FF6B9D; }
+        .nav-dot:nth-child(3) { background: #3498DB; }
+        .nav-dot:nth-child(4) { background: #9B59B6; }
+        .nav-dot:nth-child(5) { background: #27AE60; }
+
+        .nav-dot::after {
+            content: attr(data-phase);
+            position: absolute;
+            bottom: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.7rem;
+            color: #7F8C8D;
+            white-space: nowrap;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            font-weight: 600;
+        }
+
+        .nav-dot:hover::after,
+        .nav-dot.active::after {
+            opacity: 1;
+        }
+
+        /* Timeline Container */
+        .timeline-container {
+            position: relative;
+            padding: 2rem 0.5rem;
+            min-height: 400px;
+        }
+
+        .timeline-line {
+            position: absolute;
+            top: 50%;
+            left: 3%;
+            right: 3%;
+            height: 4px;
+            background: #E0E0E0;
+            border-radius: 2px;
+            z-index: 1;
+        }
+
+        .timeline-line-progress {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            background: linear-gradient(to right, #16A085, #FF6B9D, #3498DB, #9B59B6, #27AE60);
+            width: 100%;
+            border-radius: 2px;
+            opacity: 0.3;
+        }
+
+        .timeline {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+            z-index: 2;
+            gap: 0.3rem;
+        }
+
+        .milestone {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        .milestone.animate {
+            animation: fadeInUp 0.5s ease forwards;
+        }
+
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .milestone:nth-child(1) { animation-delay: 0.05s; }
+        .milestone:nth-child(2) { animation-delay: 0.1s; }
+        .milestone:nth-child(3) { animation-delay: 0.15s; }
+        .milestone:nth-child(4) { animation-delay: 0.2s; }
+        .milestone:nth-child(5) { animation-delay: 0.25s; }
+
+        /* alternanza card su/giù COME PIACEVA A TE */
+        .milestone:nth-child(odd) .milestone-content {
+            order: 2;
+            margin-top: 2.5rem;
+        }
+
+        .milestone:nth-child(even) .milestone-content {
+            order: 0;
+            margin-bottom: 2.5rem;
+        }
+
+        .milestone-circle {
+            width: 85px;
+            height: 85px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: white;
+            border: 4px solid;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+            position: relative;
+            z-index: 3;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            flex-shrink: 0;
+        }
+
+        .milestone-circle:hover {
+            transform: scale(1.12) rotate(5deg);
+            box-shadow: 0 12px 30px rgba(0,0,0,0.25);
+        }
+
+        .milestone-1 .milestone-circle {
+            border-color: #16A085;
+            background: linear-gradient(135deg, #16A085, #1ABC9C);
+        }
+
+        .milestone-2 .milestone-circle {
+            border-color: #FF6B9D;
+            background: linear-gradient(135deg, #FF6B9D, #FF8FB3);
+        }
+
+        .milestone-3 .milestone-circle {
+            border-color: #3498DB;
+            background: linear-gradient(135deg, #3498DB, #5DADE2);
+        }
+
+        .milestone-4 .milestone-circle {
+            border-color: #9B59B6;
+            background: linear-gradient(135deg, #9B59B6, #BB8FCE);
+        }
+
+        .milestone-5 .milestone-circle {
+            border-color: #27AE60;
+            background: linear-gradient(135deg, #27AE60, #2ECC71);
+        }
+
+        .milestone-circle svg {
+            width: 42px;
+            height: 42px;
+            stroke: white;
+            fill: none;
+            stroke-width: 2.5;
+            transition: all 0.3s ease;
+        }
+
+        .milestone-circle:hover svg {
+            transform: scale(1.08);
+        }
+
+        .milestone-content {
+            background: white;
+            border-radius: 15px;
+            padding: 1.2rem;
+            width: 180px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            transition: all 0.4s ease;
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+
+        .milestone-content:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 35px rgba(0,0,0,0.2);
+        }
+
+        /* titoli con i colori che volevi tu */
+        .milestone-1 .milestone-period,
+        .milestone-1 .milestone-title { color: #16A085; }
+        .milestone-2 .milestone-period,
+        .milestone-2 .milestone-title { color: #FF6B9D; }
+        .milestone-3 .milestone-period,
+        .milestone-3 .milestone-title { color: #3498DB; }
+        .milestone-4 .milestone-period,
+        .milestone-4 .milestone-title { color: #9B59B6; }
+        .milestone-5 .milestone-period,
+        .milestone-5 .milestone-title { color: #27AE60; }
+
+        .milestone-period {
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.5rem;
+        }
+
+        .milestone-title {
+            font-size: 1rem;
+            font-weight: 700;
+            margin-bottom: 0.4rem;
+            line-height: 1.3;
+        }
+
+        .milestone-description {
+            font-size: 0.75rem;
+            color: #7F8C8D;
+            margin-bottom: 0.6rem;
+        }
+
+        .milestone-details {
+            font-size: 0.7rem;
+            color: #34495E;
+            line-height: 1.4;
+            margin-bottom: 0.8rem;
+        }
+
+        .expand-btn {
+            width: 100%;
+            background: #F8F9FA;
+            border: none;
+            padding: 0.5rem;
+            border-radius: 8px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: #2C3E50;
+        }
+
+        .milestone-1 .expand-btn:hover { background: #16A085; color: white; }
+        .milestone-2 .expand-btn:hover { background: #FF6B9D; color: white; }
+        .milestone-3 .expand-btn:hover { background: #3498DB; color: white; }
+        .milestone-4 .expand-btn:hover { background: #9B59B6; color: white; }
+        .milestone-5 .expand-btn:hover { background: #27AE60; color: white; }
+
+        .milestone-connector {
+            position: absolute;
+            width: 2px;
+            background: #BDC3C7;
+            z-index: 0;
+        }
+
+        .milestone:nth-child(odd) .milestone-connector {
+            top: 85px;
+            height: 2.5rem;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .milestone:nth-child(even) .milestone-connector {
+            bottom: 85px;
+            height: 2.5rem;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        /* Modal */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(5px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.4s ease;
+            padding: 1rem;
+        }
+
+        .modal.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            max-width: 700px;
+            width: 100%;
+            max-height: 85vh;
+            overflow-y: auto;
+            position: relative;
+            transform: scale(0.9);
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .modal.active .modal-content {
+            transform: scale(1);
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: none;
+            background: #ECF0F1;
+            font-size: 1.8rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #34495E;
+            z-index: 10;
+        }
+
+        .modal-close:hover {
+            background: #E74C3C;
+            color: white;
+            transform: rotate(90deg);
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 2.5rem 2rem 2rem;
+            border-radius: 20px 20px 0 0;
+            color: white;
+            border-bottom: 4px solid;
+        }
+
+        .modal-header h2 {
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+            color: white;
+        }
+
+        .modal-header p {
+            font-size: 0.95rem;
+            opacity: 0.95;
+        }
+
+        .modal-body {
+            padding: 2rem;
+        }
+
+        .modal-body h3 {
+            font-size: 1.2rem;
+            color: #2C3E50;
+            margin: 1.5rem 0 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .modal-body h3:first-child {
+            margin-top: 0;
+        }
+
+        .modal-body p {
+            font-size: 0.95rem;
+            line-height: 1.7;
+            color: #34495E;
+        }
+
+        .modal-body ul {
+            list-style: none;
+            padding: 0;
+            margin: 1rem 0;
+        }
+
+        .modal-body li {
+            padding: 0.7rem 0.7rem 0.7rem 2.5rem;
+            margin: 0.5rem 0;
+            background: #F8F9FA;
+            border-radius: 8px;
+            border-left: 4px solid;
+            position: relative;
+            line-height: 1.6;
+            font-size: 0.9rem;
+        }
+
+        .modal-body li::before {
+            content: "▸";
+            position: absolute;
+            left: 1rem;
+            font-weight: bold;
+        }
+
+        .modal-content::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .modal-content::-webkit-scrollbar-track {
+            background: #F1F1F1;
+            border-radius: 10px;
+        }
+
+        .modal-content::-webkit-scrollbar-thumb {
+            background: #BDC3C7;
+            border-radius: 10px;
+        }
+
+        .modal-content::-webkit-scrollbar-thumb:hover {
+            background: #95A5A6;
+        }
+
+        /* ============= TUO MEDIA ORIGINALE ============= */
+        @media (max-width: 1200px) {
+            .container {
+                min-width: 1000px;
+            }
+            .milestone-content {
+                width: 160px;
+                padding: 1rem;
+            }
+            .milestone-circle {
+                width: 75px;
+                height: 75px;
+            }
+            .milestone-circle svg {
+                width: 38px;
+                height: 38px;
+            }
+
+             .milestone:nth-child(odd) .milestone-connector {
+                top: 75px;
+            }
+
+            .milestone:nth-child(even) .milestone-connector {
+                bottom: 75px;
+            }
+        }
+
+        /* ==========================================================
+           *** NUOVA PARTE ***
+           MOBILE/TABLET < 1000px
+           Qui NON tocchiamo lo stile desktop, lo adattiamo soltanto
+        ========================================================== */
+       /* =============== MOBILE / TABLET =============== */
+@media (max-width: 999px) {
+
+  body {
+    overflow-x: hidden;
+    padding: 0.5rem;
+  }
+
+  .container {
+    min-width: 0;           /* elimina i 1100px/1000px imposti sopra */
+    width: 100%;
+    padding: 1rem 0.7rem 1.5rem;
+  }
+
+  /* contenitore */
+  .timeline-container {
+    padding: 1.2rem 0 0;
+    min-height: auto;
+  }
+
+  /* linea diventa verticale e si mette a sinistra */
+  .timeline-line {
+    top: 0;
+    bottom: 0;
+    left: 28px;
+    right: auto;
+    width: 3px;
+    height: 100%;
+  }
+
+  .timeline-line-progress {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+      to bottom,
+      #16A085,
+      #FF6B9D,
+      #3498DB,
+      #9B59B6,
+      #27AE60
+    );
+  }
+
+  /* lista in colonna */
+  .timeline {
+    display: flex;
+    flex-direction: column;
+    gap: 1.6rem;
+    align-items: stretch;
+  }
+
+  /* ogni milestone diventa blocco */
+  .milestone {
+    position: relative;
+    display: block;
+    padding-left: 4.2rem;   /* spazio per il cerchio a sinistra */
+    opacity: 1;
+    transform: none;
+  }
+
+  /* card occupa tutto */
+  .milestone-content {
+    width: 100% !important;
+    margin: 0 !important;   /* niente margini su/giù alternati */
+  }
+
+  /* cerchio piccolo a sinistra, non più a destra */
+  .milestone-circle {
+    position: absolute;
+    left: 3px;
+    top: 1.1rem;
+    width: 52px;
+    height: 52px;
+    box-shadow: 0 6px 16px rgba(0,0,0,.12);
+    transform: none;
+  }
+
+  /* il connettore verticale della versione desktop lo togliamo */
+  .milestone-connector {
+    display: none;
+  }
+
+  /* niente alternanza su mobile: tutte uguali */
+  .milestone:nth-child(odd) .milestone-content,
+  .milestone:nth-child(even) .milestone-content {
+    order: 0;
+  }
+
+  /* nav un po’ più stretta */
+  .timeline-nav {
+    gap: .5rem;
+  }
+
+  /* modale un po’ più stretto */
+  .modal-content {
+    max-width: 94%;
+  }
+}
+    </style>
+</head>
+<body>
+    <div class="container">
+
+
+        <!-- Timeline -->
+        <div class="timeline-container">
+            <div class="timeline-line">
+                <div class="timeline-line-progress"></div>
+            </div>
+
+            <div class="timeline">
+                <!-- Milestone 1 -->
+                <div class="milestone milestone-1" data-index="0">
+                    <div class="milestone-content" onclick="openModal(0)">
+                        <div class="milestone-period">3° ANNO Q1</div>
+                        <div class="milestone-title">Farsi spazio nel digitale</div>
+                        <div class="milestone-description">Ottobre - Gennaio</div>
+                        <div class="milestone-details">
+                            Costruire la propria "casa" digitale: Brand Identity, CMS, Copywriting, GDPR
+                        </div>
+                        <button class="expand-btn" onclick="event.stopPropagation(); openModal(0)">
+                            ✓ Sito vetrina funzionante
+                        </button>
+                    </div>
+
+                    <div class="milestone-connector"></div>
+
+                    <div class="milestone-circle" onclick="openModal(0)">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                            <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- Milestone 2 -->
+                <div class="milestone milestone-2" data-index="1">
+                    <div class="milestone-content" onclick="openModal(1)">
+                        <div class="milestone-period">3° ANNO Q2</div>
+                        <div class="milestone-title">Trasformare il digitale</div>
+                        <div class="milestone-description">Febbraio - Maggio</div>
+                        <div class="milestone-details">
+                            Attirare i primi visitatori: Social Media, Email Marketing, KPI, Canva
+                        </div>
+                        <button class="expand-btn" onclick="event.stopPropagation(); openModal(1)">
+                            ✓ Post social e marketing
+                        </button>
+                    </div>
+
+                    <div class="milestone-connector"></div>
+
+                    <div class="milestone-circle" onclick="openModal(1)">
+                        <svg viewBox="0 0 24 24">
+                            <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+                            <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+                            <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- Milestone 3 -->
+                <div class="milestone milestone-3" data-index="2">
+                    <div class="milestone-content" onclick="openModal(2)">
+                        <div class="milestone-period">4° ANNO Q1</div>
+                        <div class="milestone-title">Conoscere il cliente</div>
+                        <div class="milestone-description">Ottobre - Gennaio</div>
+                        <div class="milestone-details">
+                            Parlare alla persona giusta: Buyer Personas, SEO, Funnel AIDA, SWOT
+                        </div>
+                        <button class="expand-btn" onclick="event.stopPropagation(); openModal(2)">
+                            ✓ Buyer Persona e SEO
+                        </button>
+                    </div>
+
+                    <div class="milestone-connector"></div>
+
+                    <div class="milestone-circle" onclick="openModal(2)">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="12" cy="7" r="4"></circle>
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- Milestone 4 -->
+                <div class="milestone milestone-4" data-index="3">
+                    <div class="milestone-content" onclick="openModal(3)">
+                        <div class="milestone-period">4° ANNO Q2</div>
+                        <div class="milestone-title">Dalla community alla conversione</div>
+                        <div class="milestone-description">Febbraio - Maggio</div>
+                        <div class="milestone-details">
+                            Costruire la macchina: Lead Generation, Landing Page, Lead Magnet
+                        </div>
+                        <button class="expand-btn" onclick="event.stopPropagation(); openModal(3)">
+                            ✓ Sistema completo Lead
+                        </button>
+                    </div>
+
+                    <div class="milestone-connector"></div>
+
+                    <div class="milestone-circle" onclick="openModal(3)">
+                        <svg viewBox="0 0 24 24">
+                            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- Milestone 5 -->
+                <div class="milestone milestone-5" data-index="4">
+                    <div class="milestone-content" onclick="openModal(4)">
+                        <div class="milestone-period">5° ANNO</div>
+                        <div class="milestone-title">Misurazione e Progetto</div>
+                        <div class="milestone-description">Anno Completo</div>
+                        <div class="milestone-details">
+                            Integrare, ottimizzare e valutare: Dashboard KPI, ROI, Progetto ADV completo
+                        </div>
+                        <button class="expand-btn" onclick="event.stopPropagation(); openModal(4)">
+                            ✓ Progetto autonomo
+                        </button>
+                    </div>
+
+                    <div class="milestone-connector"></div>
+
+                    <div class="milestone-circle" onclick="openModal(4)">
+                        <svg viewBox="0 0 24 24">
+                            <polyline points="20 6 9 17 4 12"></polyline>
+                            <circle cx="12" cy="12" r="10"></circle>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal" id="modal">
+        <div class="modal-content" id="modalContent">
+            <button class="modal-close" onclick="closeModal()">×</button>
+            <div class="modal-header" id="modalHeader"></div>
+            <div class="modal-body" id="modalBody"></div>
+        </div>
+    </div>
+
+    <script>
+        // dati del modale
+        const phasesData = [
+            {
+                title: "Farsi spazio nel digitale",
+                period: "3° Anno Q1 • Ottobre - Gennaio",
+                color: "#16A085",
+                objective: "Costruire la propria 'casa' digitale.",
+                subjects: [
+                    "TPSC: Brand Identity, marketing base",
+                    "Informatica: CMS / WordPress / Google Sites",
+                    "Italiano: scrivere per il web",
+                    "Diritto: GDPR"
+                ],
+                output: "Sito vetrina funzionante"
+            },
+            {
+                title: "Trasformare il digitale",
+                period: "3° Anno Q2 • Febbraio - Maggio",
+                color: "#FF6B9D",
+                objective: "Attirare i primi visitatori, capire i canali.",
+                subjects: [
+                    "Social Media, Email marketing",
+                    "Canva / contenuti",
+                    "KPI base (CTR, Open rate)"
+                ],
+                output: "Post social e marketing"
+            },
+            {
+                title: "Conoscere il cliente",
+                period: "4° Anno Q1 • Ottobre - Gennaio",
+                color: "#3498DB",
+                objective: "Parlare alla persona giusta.",
+                subjects: [
+                    "Buyer Personas, Customer Journey",
+                    "SEO e Funnel AIDA",
+                    "Copy SEO"
+                ],
+                output: "Buyer Persona e contenuti SEO"
+            },
+            {
+                title: "Dalla community alla conversione",
+                period: "4° Anno Q2 • Febbraio - Maggio",
+                color: "#9B59B6",
+                objective: "Costruire la macchina di conversione.",
+                subjects: [
+                    "Lead Generation, Landing Page",
+                    "Lead magnet e CTA",
+                    "Automazioni email"
+                ],
+                output: "Sistema completo Lead"
+            },
+            {
+                title: "Misurazione e Progetto Finale",
+                period: "5° Anno • Anno completo",
+                color: "#27AE60",
+                objective: "Integrare, ottimizzare e presentare i risultati.",
+                subjects: [
+                    "Dashboard KPI e ROI",
+                    "Progetto ADV completo",
+                    "Analisi dati"
+                ],
+                output: "Progetto autonomo"
+            }
+        ];
+
+        let currentMilestoneIndex = 0;
+
+        window.addEventListener('load', () => {
+            document.querySelectorAll('.milestone').forEach(m => m.classList.add('animate'));
+            updateNavDots();
+        });
+
+        function openModal(index) {
+            const data = phasesData[index];
+            const modal = document.getElementById('modal');
+            const header = document.getElementById('modalHeader');
+            const body = document.getElementById('modalBody');
+
+            header.style.borderBottomColor = data.color;
+            header.innerHTML = `
+                <h2 style="color: white">${data.title}</h2>
+                <p>${data.period}</p>
+            `;
+
+            body.innerHTML = `
+                <h3>🎯 Obiettivo</h3>
+                <p>${data.objective}</p>
+                
+                <h3>📚 Materie/competenze</h3>
+                <ul>
+                    ${data.subjects.map(s => `<li style="border-left-color:${data.color};color:${data.color}">${s}</li>`).join('')}
+                </ul>
+                
+                <h3>✓ Output</h3>
+                <p style="font-weight: 600;">${data.output}</p>
+            `;
+
+            modal.classList.add('active');
+            currentMilestoneIndex = index;
+            updateNavDots();
+        }
+
+        function closeModal() {
+            document.getElementById('modal').classList.remove('active');
+        }
+
+        document.getElementById('modal').addEventListener('click', (e) => {
+            if (e.target.id === 'modal') {
+                closeModal();
+            }
+        });
+
+        function scrollToMilestone(index) {
+            const m = document.querySelector(`.milestone[data-index="${index}"]`);
+            if (!m) return;
+            m.scrollIntoView({
+                behavior: 'smooth',
+                block: window.innerWidth >= 1000 ? 'center' : 'start'
+            });
+            currentMilestoneIndex = index;
+            updateNavDots();
+        }
+
+        function updateNavDots() {
+            document.querySelectorAll('.nav-dot').forEach((dot, i) => {
+                dot.classList.toggle('active', i === currentMilestoneIndex);
+            });
+        }
+
+        // keyboard
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeModal();
+            if (e.key === 'ArrowLeft' && currentMilestoneIndex > 0) scrollToMilestone(currentMilestoneIndex - 1);
+            if (e.key === 'ArrowRight' && currentMilestoneIndex < 4) scrollToMilestone(currentMilestoneIndex + 1);
+        });
+
+        // observer: resta
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    currentMilestoneIndex = parseInt(entry.target.dataset.index);
+                    updateNavDots();
+                }
+            });
+        }, { threshold: 0.5 });
+
+        document.querySelectorAll('.milestone').forEach(m => observer.observe(m));
+    </script>
+</body>
+</html>
